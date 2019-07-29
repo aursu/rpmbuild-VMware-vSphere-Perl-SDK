@@ -1,0 +1,16 @@
+diff -rup vmware-vsphere-cli-distrib.orig/bin/vmware-uninstall-vSphere-CLI.pl vmware-vsphere-cli-distrib/bin/vmware-uninstall-vSphere-CLI.pl
+--- vmware-vsphere-cli-distrib.orig/bin/vmware-uninstall-vSphere-CLI.pl	2015-06-17 06:21:05.773117000 -0400
++++ vmware-vsphere-cli-distrib/bin/vmware-uninstall-vSphere-CLI.pl	2015-06-17 06:25:43.897450000 -0400
+@@ -2355,12 +2355,6 @@ sub install_content_vicli_perl {
+       exit 1;
+    }
+ 
+-   # Exit the installation if OpenSSL or LibXML or e2fsprogs not installed on system.
+-   if ( ! $OpenSSL_installed || ! $LibXML2_installed || ! $e2fsprogs_installed || ! $OpenSSL_dev_installed || ! $libxml_perl_installed ) {
+-      uninstall_file($gInstallerMainDB);
+-      exit 1;
+-   }
+-
+    # Make sure we are using a valid path for Crypt-SSLeay
+    # Valid paths are
+    # Crypt-SSLeay-0.55-0.9.7

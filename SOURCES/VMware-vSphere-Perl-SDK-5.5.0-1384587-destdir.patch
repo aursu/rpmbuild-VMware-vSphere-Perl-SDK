@@ -1,0 +1,275 @@
+diff -rup vmware-vsphere-cli-distrib.orig/bin/vmware-uninstall-vSphere-CLI.pl vmware-vsphere-cli-distrib/bin/vmware-uninstall-vSphere-CLI.pl
+--- vmware-vsphere-cli-distrib.orig/bin/vmware-uninstall-vSphere-CLI.pl	2013-10-21 18:53:08.000000000 -0400
++++ vmware-vsphere-cli-distrib/bin/vmware-uninstall-vSphere-CLI.pl	2015-06-17 05:58:59.338796000 -0400
+@@ -788,6 +788,7 @@ my %product_conflicts;
+ 
+ # BEGINNING OF THE SECOND LIBRARY FUNCTIONS
+ # Global variables
++my $gDestDir;
+ my $gRegistryDir;
+ my $gFirstCreatedDir = undef;
+ my $gStateDir;
+@@ -895,7 +896,7 @@ sub db_add_file {
+   if ($flags & 0x1) {
+     my @statbuf;
+ 
+-    @statbuf = stat($file);
++    @statbuf = stat($gDestDir . $file);
+     if (not (defined($statbuf[9]))) {
+       error('Unable to get the last modification timestamp of the destination file ' . $file . '.' . "\n\n");
+     }
+@@ -1328,16 +1329,16 @@ sub install_file {
+   # because any modified config file is not removed but left in place,
+   # it will already exist and coveniently avoid processing here.  It's
+   # not added to the db so it will not be uninstalled next time.
+-  if (file_check_exist($dst)) {
++  if (file_check_exist($gDestDir . $dst)) {
+     return;
+   }
+   # The file could be a symlink to another location. Remove it
+-  unlink($dst);
+-  if (not internal_sed($src, $dst, 0, $patchRef)) {
++  unlink($gDestDir . $dst);
++  if (not internal_sed($src, $gDestDir . $dst, 0, $patchRef)) {
+     error('Unable to copy the source file ' . $src . ' to the destination file ' . $dst . '.' . "\n\n");
+   }
+   db_add_file($dst, $flags);
+-  install_permission($src, $dst);
++  install_permission($src, $gDestDir . $dst);
+ }
+ 
+ # mkdir() that reports errors
+@@ -1386,18 +1387,18 @@ sub create_dir {
+   my $dir = shift;
+   my $flags = shift;
+ 
+-  if (-d $dir) {
++  if (-d $gDestDir . $dir) {
+     return 1;
+   }
+ 
+-  if (index($dir, '/') != -1) {
++  if (index($dir, '/') != -1 && $dir ne "/" ) {
+     create_dir(internal_dirname($dir), $flags);
+   }
+-  safe_mkdir($dir);
++  safe_mkdir($gDestDir . $dir);
+   if ($flags & 0x1) {
+     db_add_dir($dir);
+   }
+-  safe_chmod(0755, $dir);
++  safe_chmod(0755, $gDestDir . $dir);
+   return 0;
+ }
+ 
+@@ -1532,7 +1533,7 @@ sub uninstall_file {
+     return;
+   }
+ 
+-  if (file_name_exist($file)) {
++  if (file_name_exist($gDestDir . $file)) {
+     # If this file is a config file and already exists or is modified,
+     # leave it in place to save the users' modifications.
+     if (defined($gDBConfig{$file}) && defined($gDBUserModified{$file})) {
+@@ -1542,7 +1543,7 @@ sub uninstall_file {
+     if (db_file_ts($file)) {
+       my @statbuf;
+ 
+-      @statbuf = stat($file);
++      @statbuf = stat($gDestDir . $file);
+       if (defined($statbuf[9])) {
+         if (db_file_ts($file) != $statbuf[9]) {
+           # Modified since this program installed it
+@@ -1662,6 +1663,11 @@ sub internal_basename {
+ sub initialize_globals {
+   my $dirname = shift;
+ 
++  # patch for DESTDIR processing
++  my $dest = defined($ENV{'DESTDIR'}) ? $ENV{'DESTDIR'} : '';
++  $dest =~ s,/*$,/, if $dest;
++
++  $gDestDir = $dest;
+   $gRegistryDir = '/etc/vmware-vcli';
+   @gOldUninstallers = qw( /etc/vmware-vicli/installer.sh /etc/vmware-rcli/installer.sh);
+   $gUninstallerFileName = 'vmware-uninstall-vSphere-CLI.pl';
+@@ -1845,12 +1851,12 @@ sub install_symlink {
+   my $name = shift;
+ 
+   uninstall_file($name);
+-  if (file_check_exist($name)) {
++  if (file_check_exist($gDestDir . $name)) {
+     return;
+   }
+   # The file could be a symlink to another location.  Remove it
+-  unlink($name);
+-  if (not symlink($to, $name)) {
++  unlink($gDestDir . $name);
++  if (not symlink($to, $gDestDir . $name)) {
+     error('Unable to create symbolic link "' . $name . '" pointing to file "'
+           . $to . '".' . "\n\n");
+   }
+@@ -1895,7 +1901,7 @@ sub install_dir {
+   if ($dir_existed) {
+     my @statbuf;
+ 
+-    @statbuf = stat($dst_dir);
++    @statbuf = stat($gDestDir . $dst_dir);
+     if (not (defined($statbuf[2]))) {
+       error('Unable to get the access rights of destination directory "' . $dst_dir . '".' . "\n\n");
+     }
+@@ -1907,17 +1913,17 @@ sub install_dir {
+                       . vmware_product_name()
+                       . '. Do you want to set those permissions properly?',
+                       'yesno', 'yes') eq 'yes') {
+-      safe_chmod(($statbuf[2] & 07777) | 0555, $dst_dir);
++      safe_chmod(($statbuf[2] & 07777) | 0555, $gDestDir . $dst_dir);
+     }
+   } else {
+-    install_permission($src_dir, $dst_dir);
++    install_permission($src_dir, $gDestDir . $dst_dir);
+   }
+ 
+   if ($is_suid_dir)
+   {
+     # Here is where we check (if necessary) for file ownership in this folder to actually "work"
+     # This is due to the fact that if the destdir is on a squash_root nfs mount, things fail miserably
+-    my $tmpfilenam = $dst_dir . '/' . 'vmware_temp_'.$$;
++    my $tmpfilenam = $gDestDir . $dst_dir . '/' . 'vmware_temp_'.$$;
+     if (not open(TESTFILE, '>' . $tmpfilenam)) {
+       error('Unable to write into ' . $dst_dir . "\n\n");
+     }
+@@ -1932,7 +1938,7 @@ sub install_dir {
+         # Remove the directory if we had to create it.
+         # XXX This could leave a dangling hierarhcy
+         # but that is a more complicated issue.
+-        rmdir($dst_dir);
++        rmdir($gDestDir . $dst_dir);
+       }
+       # Ask the user what to do, default to 'no'(abort install) to avoid infinite loop on --default.
+       my $answer = get_answer('The installer was unable to set-uid to root on files in ' . $dst_dir . '.  Would you like ' .
+@@ -2970,7 +2976,7 @@ sub get_installed_product_bin {
+   # there is no mismatch.
+   # If not_configured is found, then install has already run once and has
+   # uninstalled everything.
+-  if (not -e $gInstallerMainDB || -e $gRegistryDir . '/' . $gConfFlag) {
++  if (not -e $gDestDir . $gInstallerMainDB || -e $gDestDir . $gRegistryDir . '/' . $gConfFlag) {
+     return '';
+   }
+ 
+@@ -3166,7 +3172,7 @@ sub get_initial_database {
+   # we can find their uninstall programs.
+   remove_outdated_products();
+ 
+-  if (not (-e $gInstallerMainDB)) {
++  if (not (-e $gDestDir . $gInstallerMainDB)) {
+     create_initial_database();
+     return;
+   }
+@@ -3235,7 +3241,7 @@ sub get_initial_database {
+     if (get_answer('Uninstallation of previous install failed. ' .
+ 		   'Would you like to remove the install DB?', 'yesno', 'no') eq 'yes') {
+       print wrap('Removing installer DB, please re-run the installer.' . "\n\n", 0);
+-      unlink $gInstallerMainDB;
++      unlink $gDestDir . $gInstallerMainDB;
+     }
+ 
+     error('Failure' . "\n\n");
+@@ -3248,18 +3254,18 @@ sub get_initial_database {
+ 
+   # Create the directory structure to welcome the restored database
+   $made_dir1 = 0;
+-  if (not (-d $gRegistryDir)) {
+-    safe_mkdir($gRegistryDir);
++  if (not (-d $gDestDir . $gRegistryDir)) {
++    safe_mkdir( $gDestDir . $gRegistryDir);
+     $made_dir1 = 1;
+   }
+-  safe_chmod(0755, $gRegistryDir);
++  safe_chmod(0755, $gDestDir . $gRegistryDir);
+   $made_dir2 = 0;
+   if ($version >= 2) {
+-    if (not (-d $gStateDir)) {
+-      safe_mkdir($gStateDir);
++    if (not (-d $gDestDir . $gStateDir)) {
++      safe_mkdir($gDestDir . $gStateDir);
+       $made_dir2 = 1;
+     }
+-    safe_chmod(0755, $gStateDir);
++    safe_chmod(0755, $gDestDir . $gStateDir);
+   }
+ 
+   # Some versions of tar (1.13.17+ are ok) do not untar directory permissions
+@@ -3296,7 +3302,7 @@ sub get_initial_database {
+     my $id;
+ 
+     db_load();
+-    if (not open(INSTALLDB, '>' . $gInstallerMainDB)) {
++    if (not open(INSTALLDB, '>' . $gDestDir. $gInstallerMainDB)) {
+       error('Unable to open the tar installer database ' . $gInstallerMainDB
+             . ' in write-mode.' . "\n\n");
+     }
+@@ -3314,7 +3320,7 @@ sub get_initial_database {
+     my $id;
+ 
+     db_load();
+-    if (not open(INSTALLDB, '>' . $gInstallerMainDB)) {
++    if (not open(INSTALLDB, '>' . $gDestDir . $gInstallerMainDB)) {
+       error('Unable to open the tar installer database ' . $gInstallerMainDB
+             . ' in write-mode.' . "\n\n");
+     }
+@@ -3376,7 +3382,7 @@ sub get_initial_database {
+     my $id;
+ 
+     db_load();
+-    if (not open(INSTALLDB, '>' . $gInstallerMainDB)) {
++    if (not open(INSTALLDB, '>' . $gDestDir . $gInstallerMainDB)) {
+       error('Unable to open the tar installer database ' . $gInstallerMainDB
+             . ' in write-mode.' . "\n\n");
+     }
+@@ -3435,12 +3441,12 @@ sub create_initial_database {
+   print wrap('Creating a new ' . vmware_product_name()
+              . ' installer database using the tar4 format.' . "\n\n", 0);
+ 
+-  $made_dir1 = create_dir($gRegistryDir, 0);
+-  safe_chmod(0755, $gRegistryDir);
++  $made_dir1 = create_dir( $gRegistryDir, 0);
++  safe_chmod(0755, $gDestDir . $gRegistryDir);
+ 
+-  if (not open(INSTALLDB, '>' . $gInstallerMainDB)) {
++  if (not open(INSTALLDB, '>' . $gDestDir . $gInstallerMainDB)) {
+     if ($made_dir1) {
+-      rmdir($gRegistryDir);
++      rmdir($gDestDir . $gRegistryDir);
+     }
+     error('Unable to open the tar installer database ' . $gInstallerMainDB
+           . ' in write-mode.' . "\n\n");
+@@ -3478,16 +3484,16 @@ sub write_vmware_config {
+   $name = $gRegistryDir . '/config';
+ 
+   uninstall_file($name);
+-  if (file_check_exist($name)) {
++  if (file_check_exist($gDestDir . $name)) {
+     return;
+   }
+   # The file could be a symlink to another location. Remove it
+-  unlink($name);
++  unlink($gDestDir . $name);
+ 
+-  open(CONFIGFILE, '>' . $name) or error('Unable to open the configuration file '
++  open(CONFIGFILE, '>' . $gDestDir . $name) or error('Unable to open the configuration file '
+                                          . $name . ' in write-mode.' . "\n\n");
+   db_add_file($name, 0x1);
+-  safe_chmod(0444, $name);
++  safe_chmod(0444, $gDestDir . $name);
+   print CONFIGFILE 'libdir = "' . db_get_answer('LIBDIR') . '"' . "\n";
+   close(CONFIGFILE);
+ }
+@@ -3839,7 +3845,7 @@ sub main {
+     get_initial_database();
+     # Binary wrappers can be run by any user and need to read the
+     # database.
+-    safe_chmod(0644, $gInstallerMainDB);
++    safe_chmod(0644, $gDestDir . $gInstallerMainDB);
+ 
+     db_add_answer('INSTALL_CYCLE', 'yes');
+ 
