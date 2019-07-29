@@ -2,8 +2,8 @@
 
 Summary: Perl scripting interface to the vSphere API
 Name: VMware-vSphere-Perl-SDK
-Version: 6.7.0-8156551
-Release: 1%{?dist}
+Version: 6.7.0
+Release: 8156551%{?dist}.1
 Group: System Environment/Libraries
 License: VMware, Inc.
 Source: VMware-vSphere-Perl-SDK-6.7.0-8156551.x86_64.tar.gz
@@ -123,7 +123,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/resxtop.1*
 
 %changelog
-* Mon Jul 29 2019 Alexander Ursu <alexander.ursu@gmail.com> 6.7.0-8156551-1
+* Mon Jul 29 2019 Alexander Ursu <alexander.ursu@gmail.com> 6.7.0-8156551.el7.1
 - upgrade to 6.7.0
 
 * Mon Jun 22 2015 Alexander Ursu <aursu@hostopia.com> 5.5.0-1384587.el6.1
