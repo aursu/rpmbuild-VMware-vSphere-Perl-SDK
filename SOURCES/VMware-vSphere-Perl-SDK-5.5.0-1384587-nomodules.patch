@@ -1,22 +1,6 @@
 diff -rup vmware-vsphere-cli-distrib.orig/bin/vmware-uninstall-vSphere-CLI.pl vmware-vsphere-cli-distrib/bin/vmware-uninstall-vSphere-CLI.pl
 --- vmware-vsphere-cli-distrib.orig/bin/vmware-uninstall-vSphere-CLI.pl	2015-06-17 06:18:46.186371000 -0400
 +++ vmware-vsphere-cli-distrib/bin/vmware-uninstall-vSphere-CLI.pl	2015-06-17 06:21:05.773117000 -0400
-@@ -2233,15 +2233,6 @@ sub install_content_vicli_perl {
-       print wrap("warning: " . $vicliName . " requires Perldoc.\n Please install perldoc.\n\n");
-    }
- 
--   if ( file_name_exist("/etc/redhat-release")) {
--      my $msg = "This " . vmware_product_name() . " installer includes precompiled Perl modules for RHEL.\n"
--                . "Answering yes will install the precompiled modules, and answering no will install from CPAN.\n"
--                . "Do you want to install precompiled Perl modules for RHEL?\n";
--      if (get_answer($msg, 'yesno', 'no') eq 'yes') {
--         $install_rhel55_local = 1;
--      }
--   }
--
-    # Determine version of libxml2 that's installed.
-    foreach my $line (direct_command("ldconfig -v 2> /dev/null")) {
-       chomp($line);
 @@ -2480,6 +2471,10 @@ sub install_content_vicli_perl {
           $internet_available = ($internetConnect > 3 ) ? 1:0;
         }
