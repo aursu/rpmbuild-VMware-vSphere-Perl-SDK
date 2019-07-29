@@ -2,11 +2,11 @@
 
 Summary: Perl scripting interface to the vSphere API
 Name: VMware-vSphere-Perl-SDK
-Version: 5.5.0
-Release: 1384587%{?dist}.1
+Version: 6.7.0-8156551
+Release: 1%{?dist}
 Group: System Environment/Libraries
 License: VMware, Inc.
-Source: VMware-vSphere-Perl-SDK-5.5.0-1384587.x86_64.tar.gz
+Source: VMware-vSphere-Perl-SDK-6.7.0-8156551.x86_64.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(id -nu)
 
 Patch1: VMware-vSphere-Perl-SDK-5.5.0-1384587-destdir.patch
@@ -53,7 +53,8 @@ vSphere SDK for Perl subroutines
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p0
+# Disable for 6.7
+# %patch5 -p0
 
 %build
 exit 0
