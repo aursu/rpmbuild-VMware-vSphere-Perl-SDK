@@ -1,0 +1,7 @@
+version: "3.4"
+services:
+  centos7vspherebase:
+    build:
+      context: .
+      dockerfile: Dockerfile.base
+    image: aursu/vspherebuild:7-base

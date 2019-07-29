@@ -1,0 +1,35 @@
+FROM aursu/rpmbuild:7-build
+        
+USER root
+RUN yum -y install \
+        perl-Archive-Zip \
+        perl-ExtUtils-Install \
+        perl-ExtUtils-MakeMaker \
+        perl-Crypt-SSLeay \
+        perl-HTML-Parser \
+        perl-IO-Socket-INET6 \
+        perl-ExtUtils-MakeMaker \
+        perl-Module-Build \
+        perl-Net-HTTP \
+        perl-Net-INET6Glue \
+        perl-Path-Class \
+        perl-Socket6 \
+        perl-Text-Template \
+        perl-Time-Piece \
+        perl-Try-Tiny \
+        perl-UUID \
+        perl-version \
+        perl-XML-SAX \
+        perl-XML-NamespaceSupport \
+        perl-XML-LibXML \
+        perl-libwww-perl \
+        perl-LWP-Protocol-https \
+        e2fsprogs \
+        openssl \
+        glibc.i686 \
+        zlib.i686 \
+        e2fsprogs-devel \
+        libuuid-devel \
+        openssl-devel \
+        perl-devel \
+    && yum clean all && rm -rf /var/cache/yum
