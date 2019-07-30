@@ -90,7 +90,7 @@ BuildRequires: redhat-rpm-config
 %filter_from_requires /perl\(VMware/d; /perl\(WSMan/d
 %{?perl_default_filter}
 
-%global __provides_exclude_from %{_usr}/lib/vmware-vcli/bin/(esxcli|vmware-dcli)/.*\\.so(\\..*)?|%{_usr}/lib/vmware-vcli/lib32/.*\\.so(\\..*)?|%{_usr}/lib/vmware-vcli/VMware
+%global __provides_exclude_from %{_usr}/lib/vmware-vcli/bin/(esxcli|vmware-dcli)/.*\\.so(\\..*)?|%{_usr}/lib/vmware-vcli/lib32/.*\\.so(\\..*)?|%{_usr}/lib/vmware-vcli/VMware|%{_docdir}/vmware-vcli
 %global __requires_exclude_from %{_usr}/lib/vmware-vcli|%{_docdir}/vmware-vcli
 %global __requires_exclude ^perl\\((VMware|WSMan)
 
