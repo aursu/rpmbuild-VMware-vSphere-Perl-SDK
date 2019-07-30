@@ -1,15 +1,87 @@
 diff -rup vmware-vsphere-cli-distrib-6.7/bin/vmware-uninstall-vSphere-CLI.pl vmware-vsphere-cli-distrib/bin/vmware-uninstall-vSphere-CLI.pl
 --- vmware-vsphere-cli-distrib-6.7/bin/vmware-uninstall-vSphere-CLI.pl	2018-04-02 11:09:56.000000000 +0200
-+++ vmware-vsphere-cli-distrib/bin/vmware-uninstall-vSphere-CLI.pl	2019-07-30 01:59:00.261942543 +0200
-@@ -788,6 +788,7 @@ my %product_conflicts;
++++ vmware-vsphere-cli-distrib/bin/vmware-uninstall-vSphere-CLI.pl	2019-07-30 03:47:37.539824989 +0200
+@@ -788,6 +788,8 @@ my %product_conflicts;
  
  # BEGINNING OF THE SECOND LIBRARY FUNCTIONS
  # Global variables
 +my $gDestDir;
++my $gDestDir_len;
  my $gRegistryDir;
  my $gFirstCreatedDir = undef;
  my $gStateDir;
-@@ -1390,7 +1391,7 @@ sub create_dir {
+@@ -891,6 +893,11 @@ sub db_append {
+ sub db_add_file {
+   my $file = shift;
+   my $flags = shift;
++  my $db_file = $file;
++
++  if ($gDestDir_len > 0 && substr($file, 0, $gDestDir_len) eq $gDestDir) {
++    $db_file = substr($file, $gDestDir_len);
++  }
+ 
+   if ($flags & 0x1) {
+     my @statbuf;
+@@ -901,10 +908,10 @@ sub db_add_file {
+     }
+ 
+     $gDBFile{$file} = $statbuf[9];
+-    print INSTALLDB 'file ' . $file . ' ' . $statbuf[9] . "\n";
++    print INSTALLDB 'file ' . $db_file . ' ' . $statbuf[9] . "\n";
+   } else {
+     $gDBFile{$file} = 0;
+-    print INSTALLDB 'file ' . $file . "\n";
++    print INSTALLDB 'file ' . $db_file . "\n";
+   }
+ }
+ 
+@@ -912,7 +919,13 @@ sub db_add_file {
+ sub db_remove_file {
+   my $file = shift;
+ 
+-  print INSTALLDB 'remove_file ' . $file . "\n";
++  my $db_file = $file;
++
++  if ($gDestDir_len > 0 && substr($file, 0, $gDestDir_len) eq $gDestDir) {
++    $db_file = substr($file, $gDestDir_len);
++  }
++
++  print INSTALLDB 'remove_file ' . $db_file . "\n";
+   delete $gDBFile{$file};
+ }
+ 
+@@ -920,7 +933,13 @@ sub db_remove_file {
+ sub db_remove_dir {
+   my $dir = shift;
+ 
+-  print INSTALLDB 'remove_directory ' . $dir . "\n";
++  my $db_dir = $dir;
++
++  if ($gDestDir_len > 0 && substr($dir, 0, $gDestDir_len) eq $gDestDir) {
++    $db_dir = substr($dir, $gDestDir_len);
++  }
++
++  print INSTALLDB 'remove_directory ' . $db_dir . "\n";
+   delete $gDBDir{$dir};
+ }
+ 
+@@ -949,8 +968,14 @@ sub db_file_ts {
+ sub db_add_dir {
+   my $dir = shift;
+ 
++  my $db_dir = $dir;
++
++  if ($gDestDir_len > 0 && substr($dir, 0, $gDestDir_len) eq $gDestDir) {
++    $db_dir = substr($dir, $gDestDir_len);
++  }
++
+   $gDBDir{$dir} = '';
+-  print INSTALLDB 'directory ' . $dir . "\n";
++  print INSTALLDB 'directory ' . $db_dir . "\n";
+ }
+ 
+ # Remove an answer from the tar installer database
+@@ -1390,7 +1415,7 @@ sub create_dir {
      return 1;
    }
  
@@ -18,7 +90,7 @@ diff -rup vmware-vsphere-cli-distrib-6.7/bin/vmware-uninstall-vSphere-CLI.pl vmw
      create_dir(internal_dirname($dir), $flags);
    }
    safe_mkdir($dir);
-@@ -1662,7 +1663,12 @@ sub internal_basename {
+@@ -1662,7 +1687,13 @@ sub internal_basename {
  sub initialize_globals {
    my $dirname = shift;
  
@@ -28,11 +100,12 @@ diff -rup vmware-vsphere-cli-distrib-6.7/bin/vmware-uninstall-vSphere-CLI.pl vmw
 +  $dest =~ s,/*$,, if $dest;
 +
 +  $gDestDir = $dest;
++  $gDestDir_len = length($dest);
 +  $gRegistryDir = $gDestDir . '/etc/vmware-vcli';
    @gOldUninstallers = qw( /etc/vmware-vicli/installer.sh /etc/vmware-rcli/installer.sh);
    $gUninstallerFileName = 'vmware-uninstall-vSphere-CLI.pl';
  
-@@ -1865,7 +1871,7 @@ sub install_bin_symlink {
+@@ -1865,7 +1896,7 @@ sub install_bin_symlink {
    
    foreach $file (internal_ls($src_dir)) {
      my $src = $src_dir . '/' . $file;
@@ -41,7 +114,7 @@ diff -rup vmware-vsphere-cli-distrib-6.7/bin/vmware-uninstall-vSphere-CLI.pl vmw
      my $dst_loc = $dst_dir . '/' . $file;
      if (-l $dst_loc) {
        install_symlink(readlink($dst_loc), $src_loc);
-@@ -2145,7 +2151,7 @@ sub uninstall {
+@@ -2145,7 +2176,7 @@ sub uninstall {
       system($gHelper{'rm'} . ' -rf ' . $eclipse_dir . '/../configuration/com.vmware.bfg*');
    }
  
@@ -50,7 +123,7 @@ diff -rup vmware-vsphere-cli-distrib-6.7/bin/vmware-uninstall-vSphere-CLI.pl vmw
  }
  
  #
-@@ -2670,16 +2676,16 @@ sub install_content_vicli_perl {
+@@ -2670,16 +2701,16 @@ sub install_content_vicli_perl {
  
        undef %patch;
        if ($] >= 5.010 && ( -e "./lib/5.10/$module->{'path'}/lib" ) )  {
@@ -71,7 +144,7 @@ diff -rup vmware-vsphere-cli-distrib-6.7/bin/vmware-uninstall-vSphere-CLI.pl vmw
        }
  
        if ($] < 5.010) {
-@@ -2780,7 +2786,7 @@ sub install_content_vicli {
+@@ -2780,7 +2811,7 @@ sub install_content_vicli {
    undef %patch;
    $bindir = "$rootdir/bin";
    # Install VCLIs in VCLI bin directory
@@ -80,7 +153,7 @@ diff -rup vmware-vsphere-cli-distrib-6.7/bin/vmware-uninstall-vSphere-CLI.pl vmw
    db_add_answer('BINDIR', "$rootdir/bin");
  
    $gIsUninstallerInstalled = 1;
-@@ -2788,53 +2794,53 @@ sub install_content_vicli {
+@@ -2788,53 +2819,52 @@ sub install_content_vicli {
    $libdir = "$rootdir" . '/lib/vmware-vcli';
    undef %patch;
    # Install vSphere SDK for Perl apps
@@ -125,8 +198,6 @@ diff -rup vmware-vsphere-cli-distrib-6.7/bin/vmware-uninstall-vSphere-CLI.pl vmw
 -  safe_chmod(755, "$bindir/esxcli");
 -  safe_chmod(755, "$bindir/dcli");
 +  install_symlink("$libdir/bin/vmware-dcli/dcli", $gDestDir . "$bindir/dcli");
-+  safe_chmod(755, $gDestDir . "$bindir/esxcli");
-+  safe_chmod(755, $gDestDir . "$bindir/dcli");
  
    # Install a symlink for VCLI
    if ( "$rootdir/bin" ne "/usr/bin") {
@@ -138,10 +209,11 @@ diff -rup vmware-vsphere-cli-distrib-6.7/bin/vmware-uninstall-vSphere-CLI.pl vmw
       # Making esxcli and dcli executable
 -	 safe_chmod(755, "/usr/bin/esxcli");
 -     safe_chmod(755, "/usr/bin/dcli");
-+     safe_chmod(755, $gDestDir . "/usr/bin/esxcli");
-+     safe_chmod(755, $gDestDir . "/usr/bin/dcli");
    }
  
++  safe_chmod(755, $gDestDir . "$libdir/bin/esxcli/esxcli");
++  safe_chmod(755, $gDestDir . "$libdir/bin/vmware-dcli/dcli");
++
    # Install a symlink to make /lib point to the correct library
    # based on the architecture of our system
    if (is64BitUserLand()) {
@@ -154,7 +226,7 @@ diff -rup vmware-vsphere-cli-distrib-6.7/bin/vmware-uninstall-vSphere-CLI.pl vmw
    }
  
    # Make sure that, in particular, libvmacore.so's exec text permission needs
-@@ -2846,13 +2852,13 @@ sub install_content_vicli {
+@@ -2846,13 +2876,13 @@ sub install_content_vicli {
  
    # Install vSphere SDK for Perl content excluding "apps"
    $docdir = $rootdir . '/share/doc/vmware-vcli';
@@ -170,7 +242,7 @@ diff -rup vmware-vsphere-cli-distrib-6.7/bin/vmware-uninstall-vSphere-CLI.pl vmw
  
    write_vmware_config();
  
-@@ -3034,7 +3040,7 @@ sub get_installed_product_bin {
+@@ -3034,7 +3064,7 @@ sub get_installed_product_bin {
    }
  
    db_load();
@@ -179,7 +251,7 @@ diff -rup vmware-vsphere-cli-distrib-6.7/bin/vmware-uninstall-vSphere-CLI.pl vmw
    if (-f $bindir . "/vmware") {
      $binfile = $bindir . "/vmware";
    } else {
-@@ -3619,14 +3625,14 @@ sub install_module {
+@@ -3619,14 +3649,14 @@ sub install_module {
    print wrap('Installing the kernel modules contained in this package.' . "\n\n", 0);
  
    undef %patch;
