@@ -17,32 +17,33 @@ Patch4: VMware-vSphere-Perl-SDK-5.5.0-1384587-nosoft.patch
 Patch5: VMware-vSphere-Perl-SDK-5.5.0-1384587-sslslowness.patch
 
 # Requires: perl-Crypt-SSLeay >= 0.72
-# Requires: perl-IO-Socket-INET6 >= 2.72
-# Requires: perl-Module-Build = 0.42.05
-# Requires: perl-Net-HTTP >= 6.09
-# Requires: perl(Net::FTP) = 2.77
-# Requires: perl-Socket6 >= 0.28
-# Requires: perl-Try-Tiny >= 0.28
-# Requires: perl-libwww-perl = 6.26
-# Requires: perl-LWP-Protocol-https = 6.07
 # Requires: perl-ExtUtils-MakeMaker = 6.96
-# Requires: perl-Time-Piece >= 1.31
-# Requires: perl-XML-NamespaceSupport >= 1.12
+# Requires: perl-IO-Socket-INET6 >= 2.72
+# Requires: perl-LWP-Protocol-https = 6.07
+# Requires: perl-libwww-perl = 6.26
+# Requires: perl-Module-Build = 0.42.05
+# Requires: perl(Net::FTP) = 2.77
+# Requires: perl-Net-HTTP >= 6.09
 # Requires: perl-Net-INET6Glue >= 0.603
+# Requires: perl-Socket6 >= 0.28
 # Requires: perl-Text-Template >= 1.47
+# Requires: perl-Time-Piece >= 1.31
+# Requires: perl-Try-Tiny >= 0.28
+# Requires: perl-XML-NamespaceSupport >= 1.12
 
 Requires: perl-Archive-Zip >= 1.28
-Requires: perl-ExtUtils-Install > 1.54
-Requires: perl-ExtUtils-MakeMaker = 6.96
 Requires: perl-Crypt-SSLeay >= 0.64
 Requires: perl-Data-Dumper >= 2.121
+Requires: perl-ExtUtils-Install > 1.54
+Requires: perl-ExtUtils-MakeMaker >= 6.68
 Requires: perl-HTML-Parser >= 3.60
 Requires: perl-IO-Socket-INET6 >= 2.69
-Requires: perl-ExtUtils-MakeMaker >= 6.68
+Requires: perl-LWP-Protocol-https >= 6.04
+Requires: perl-libwww-perl >= 6.05
 Requires: perl-Module-Build >= 0.40.05
+Requires: perl(Net::FTP)
 Requires: perl-Net-HTTP >= 6.06
 # perl(Net::FTP) is a part of perl-5.16.3 distribution on CentOS 7
-Requires: perl(Net::FTP)
 Requires: perl-Net-INET6Glue >= 0.5
 Requires: perl-Path-Class >= 0.33
 Requires: perl-Socket6 >= 0.23
@@ -54,8 +55,7 @@ Requires: perl-version >= 0.78
 Requires: perl-XML-SAX >= 0.99
 Requires: perl-XML-NamespaceSupport >= 1.11
 Requires: perl-XML-LibXML >= 2.0129
-Requires: perl-libwww-perl >= 6.05
-Requires: perl-LWP-Protocol-https >= 6.04
+
 
 # https://code.vmware.com/docs/6530/vsphere-sdk-for-perl-installation-guide#/doc/GUID-8B0E6E94-A215-4904-935D-1B164C3941A8.html
 Requires: e2fsprogs > 1.38
