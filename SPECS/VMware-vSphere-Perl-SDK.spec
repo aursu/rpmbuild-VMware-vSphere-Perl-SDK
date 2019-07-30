@@ -61,18 +61,23 @@ BuildRequires: libuuid-devel
 BuildRequires: openssl-devel
 BuildRequires: perl-devel
 BuildRequires: perl-Pod-Perldoc
-# BuildRequires: redhat-rpm-config
+BuildRequires: redhat-rpm-config
 
 # we do not provide included libpython and py modules
-%filter_provides_in %{_usr}/lib/vmware-vcli/bin/esxcli/.*\.so\..*$
-%filter_provides_in %{_usr}/lib/vmware-vcli/bin/esxcli/.*\.so$
+%filter_provides_in %{_usr}/lib/vmware-vcli/bin/esxcli/.*\\.so\\..*$
+%filter_provides_in %{_usr}/lib/vmware-vcli/bin/esxcli/.*\\.so$
 # we do not provide included ssl, crypto, expat and stdc++ libs
-%filter_provides_in %{_usr}/lib/vmware-vcli/lib32/.*\.so\..*
+%filter_provides_in %{_usr}/lib/vmware-vcli/lib32/.*\\.so\\..*
 %filter_provides_in %{_usr}/lib/vmware-vcli/VMware
+
 # All requires already listed above
 %filter_requires_in %{_usr}/lib/vmware-vcli
-%filter_from_requires /perl(VMware/d; /perl(WSMan/d
+%filter_from_requires /perl\\(VMware/d; /perl\\(WSMan/d
 %{?perl_default_filter}
+
+%global __provides_exclude_from %{_usr}/lib/vmware-vcli/bin/(esxcli|vmware-dcli)/.*\\.so(\\..*)?|%{_usr}/lib/vmware-vcli/lib32/.*\\.so(\\..*)?|%{_usr}/lib/vmware-vcli/VMware
+%global __requires_exclude_from %{_usr}/lib/vmware-vcli
+%global __requires_exclude ^perl\\((VMware|WSMan)
 
 %description
 The vSphere SDK for Perl provides an easy-to-use Perl scripting interface to the
@@ -112,8 +117,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/svmotion
 %{_bindir}/vmkfstools
 %{_bindir}/viperl-support
+%{_bindir}/dcli
 # no need uninstll script for RPM package
-%exclude %{_bindir}/vmware-uninstall-vSphere-CLI.pl
+%exclude %{_bindir}/vmware-uninstall-vSphere-CLI.pl*
+%exclude %{_bindir}/*.bat
+%exclude %{_bindir}/*.pyc
 %{_bindir}/vicfg-*
 %{_bindir}/esxcfg-*
 %{_bindir}/esxcli
