@@ -5,6 +5,5 @@ COPY SPECS ${BUILD_TOPDIR}/SPECS
 
 RUN chown -R $BUILD_USER ${BUILD_TOPDIR}/{SOURCES,SPECS}
 
-USER $BUILD_USER
 ENTRYPOINT ["/usr/bin/rpmbuild", "VMware-vSphere-Perl-SDK.spec"]
 CMD ["-ba"]

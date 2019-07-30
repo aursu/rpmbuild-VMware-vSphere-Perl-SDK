@@ -1,4 +1,4 @@
-FROM aursu/rpmbuild:7-build
+FROM aursu/rpmbuild:7-build-root
         
 USER root
 RUN yum -y install \

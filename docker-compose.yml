@@ -2,8 +2,8 @@ version: "3.4"
 services:
   centos7vspherebuild:
     volumes:
-      - rpms:/home/centos/rpmbuild/SRPMS
-      - rpm7:/home/centos/rpmbuild/RPMS
+      - rpms:/root/rpmbuild/SRPMS
+      - rpm7:/root/rpmbuild/RPMS
     build:
       context: .
 
