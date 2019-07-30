@@ -1,14 +1,15 @@
 FROM aursu/rpmbuild:7-build-root
-        
+
 USER root
 RUN yum -y install \
         perl-Archive-Zip \
+        perl-Crypt-SSLeay \
         perl-ExtUtils-Install \
         perl-ExtUtils-MakeMaker \
-        perl-Crypt-SSLeay \
         perl-HTML-Parser \
         perl-IO-Socket-INET6 \
-        perl-ExtUtils-MakeMaker \
+        perl-LWP-Protocol-https \
+        perl-libwww-perl \
         perl-Module-Build \
         perl-Net-HTTP \
         perl-Net-INET6Glue \
@@ -17,19 +18,20 @@ RUN yum -y install \
         perl-Text-Template \
         perl-Time-Piece \
         perl-Try-Tiny \
-        perl-UUID \
         perl-version \
         perl-XML-SAX \
         perl-XML-NamespaceSupport \
         perl-XML-LibXML \
-        perl-libwww-perl \
-        perl-LWP-Protocol-https \
+        perl-devel \
         e2fsprogs \
-        openssl \
-        glibc.i686 \
-        zlib.i686 \
         e2fsprogs-devel \
         libuuid-devel \
+        openssl \
         openssl-devel \
-        perl-devel \
+        glibc.i686 \
+        zlib.i686 \
+    && yum clean all && rm -rf /var/cache/yum
+
+RUN yum -y --enablerepo=bintray-custom install \
+        perl-UUID \
     && yum clean all && rm -rf /var/cache/yum
