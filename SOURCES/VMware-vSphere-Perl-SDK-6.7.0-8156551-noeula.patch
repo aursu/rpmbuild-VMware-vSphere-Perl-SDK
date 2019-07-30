@@ -10,15 +10,15 @@ diff -rup vmware-vsphere-cli-distrib.orig/bin/vmware-uninstall-vSphere-CLI.pl vm
        print wrap('Please try again when you are ready to accept.' . "\n\n", 0);
        uninstall_file($gInstallerMainDB);
        exit 1;
-@@ -2237,7 +2237,7 @@ sub install_content_vicli_perl {
-       my $msg = "This " . vmware_product_name() . " installer includes precompiled Perl modules for RHEL.\n"
-                 . "Answering yes will install the precompiled modules, and answering no will install from CPAN.\n"
-                 . "Do you want to install precompiled Perl modules for RHEL?\n";
--      if (get_answer($msg, 'yesno', 'yes') eq 'yes') {
-+      if (get_answer($msg, 'yesno', 'no') eq 'yes') {
-          $install_rhel55_local = 1;
-       }
-    }
+@@ -2579,7 +2579,7 @@ sub install_content_vicli_perl {
+          }
+ 
+          # To get user's input to install specific modules
+-         if (get_answer('Do you want to continue? (yes/no)', 'yesno', '') eq 'no') {
++         if (get_answer('Do you want to continue? (yes/no)', 'yesno', 'yes') eq 'no') {
+             print wrap('Please try again when you are ready to accept.' . "\n\n", 0);
+             uninstall();
+             print wrap('Thank you.' . "\n\n", 0);
 @@ -2698,11 +2698,6 @@ sub install_content_vicli {
    my $mandir;
    my $libdir;
@@ -38,5 +38,5 @@ diff -rup vmware-vsphere-cli-distrib.orig/bin/vmware-uninstall-vSphere-CLI.pl vm
 -		   'Would you like to remove the install DB?', 'yesno', 'no') eq 'yes') {
 +		   'Would you like to remove the install DB?', 'yesno', 'yes') eq 'yes') {
        print wrap('Removing installer DB, please re-run the installer.' . "\n\n", 0);
-       unlink $gDestDir . $gInstallerMainDB;
+       unlink $gInstallerMainDB;
      }
