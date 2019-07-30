@@ -9,8 +9,8 @@ License: VMware, Inc.
 Source: VMware-vSphere-Perl-SDK-6.7.0-8156551.x86_64.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(id -nu)
 
-Patch1: VMware-vSphere-Perl-SDK-5.5.0-1384587-destdir.patch
-Patch2: VMware-vSphere-Perl-SDK-5.5.0-1384587-noeula.patch
+Patch1: VMware-vSphere-Perl-SDK-6.7.0-8156551-destdir.patch
+Patch2: VMware-vSphere-Perl-SDK-6.7.0-8156551-noeula.patch
 Patch3: VMware-vSphere-Perl-SDK-5.5.0-1384587-nomodules.patch
 Patch4: VMware-vSphere-Perl-SDK-5.5.0-1384587-nosoft.patch
 # https://communities.vmware.com/message/2298661
