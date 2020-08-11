@@ -2,11 +2,14 @@
 
 Summary: Perl scripting interface to the vSphere API
 Name: VMware-vSphere-Perl-SDK
-Version: 6.7.0
-Release: 8156551%{?dist}.1
+Version: 7.0.0
+Release: 16453907%{?dist}.1
 Group: System Environment/Libraries
 License: VMware, Inc.
-Source: VMware-vSphere-Perl-SDK-6.7.0-8156551.x86_64.tar.gz
+Source: VMware-vSphere-Perl-SDK-7.0.0-16453907.x86_64.tar.gz
+# https://kb.vmware.com/s/article/78473
+Source1: esxcli-7.0.0-15866526-lin64.sh
+Source2: resxtop-7.0.0-15992393-lin64.tgz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(id -nu)
 
 Patch1: VMware-vSphere-Perl-SDK-6.7.0-8156551-destdir.patch
@@ -15,6 +18,9 @@ Patch3: VMware-vSphere-Perl-SDK-5.5.0-1384587-nomodules.patch
 Patch4: VMware-vSphere-Perl-SDK-5.5.0-1384587-nosoft.patch
 # https://communities.vmware.com/message/2298661
 Patch5: VMware-vSphere-Perl-SDK-5.5.0-1384587-sslslowness.patch
+Patch6: VMware-vSphere-Perl-SDK-7.0.0-16453907-destdir.patch
+Patch7: VMware-vSphere-Perl-SDK-7.0.0-16453907-noeula.patch
+Patch8: VMware-vSphere-Perl-SDK-7.0.0-16453907-nomodules.patch
 
 # Requires: perl-Crypt-SSLeay >= 0.72
 # Requires: perl-ExtUtils-MakeMaker = 6.96
@@ -90,8 +96,8 @@ BuildRequires: redhat-rpm-config
 %filter_from_requires /perl\(VMware/d; /perl\(WSMan/d
 %{?perl_default_filter}
 
-%global __provides_exclude_from %{_usr}/lib/vmware-vcli/bin/(esxcli|vmware-dcli)/.*\\.so(\\..*)?|%{_usr}/lib/vmware-vcli/lib32/.*\\.so(\\..*)?|%{_usr}/lib/vmware-vcli/VMware|%{_docdir}/vmware-vcli
-%global __requires_exclude_from %{_usr}/lib/vmware-vcli|%{_docdir}/vmware-vcli
+%global __provides_exclude_from %{_usr}/lib/vmware-vcli/bin/(esxcli|vmware-dcli)/.*\\.so(\\..*)?|%{_usr}/lib/vmware-vcli/lib32/.*\\.so(\\..*)?|%{_usr}/lib/vmware-vcli/VMware|%{_docdir}/vmware-vcli|/opt/vmware|%{_usr}/lib/vmware/resxtop
+%global __requires_exclude_from %{_usr}/lib/vmware-vcli|%{_docdir}/vmware-vcli|%{_usr}/lib/vmware/resxtop|/opt/vmware|%{_bindir}/resxtop|%{_bindir}/esxcli
 %global __requires_exclude ^perl\\((VMware|WSMan)
 
 %description
@@ -101,12 +107,22 @@ vSphere SDK for Perl subroutines
 
 %prep
 %setup -q -n vmware-vsphere-cli-distrib
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
 %patch4 -p1
 # Disable for 6.7
 # %patch5 -p0
+
+mkdir -p esxcli
+pushd esxcli
+sed -n '/^__ARCHIVE_BELOW__/,$ {//!p}' < %{SOURCE1} | tar zx
+popd
+
+mkdir -p resxtop
+pushd resxtop
+tar zxf %{SOURCE2}
+popd
 
 %build
 exit 0
@@ -115,37 +131,52 @@ exit 0
 rm -rf $RPM_BUILD_ROOT
 DESTDIR=$RPM_BUILD_ROOT ./vmware-install.pl --default
 
+pushd esxcli
+mkdir -p $RPM_BUILD_ROOT/opt/vmware
+tar zxf *.tgz -C $RPM_BUILD_ROOT/opt/vmware
+ln -s /opt/vmware/esxcli/esxcli $RPM_BUILD_ROOT%{_bindir}/esxcli
+popd
+
+pushd resxtop
+install -D -m 755 resxtop $RPM_BUILD_ROOT%{_bindir}/resxtop
+mkdir -p $RPM_BUILD_ROOT%{_usr}/lib/vmware/resxtop
+cp -rp lib64/* $RPM_BUILD_ROOT%{_usr}/lib/vmware/resxtop
+cp -rp doc/esxtop* $RPM_BUILD_ROOT%{_mandir}/man1/
+popd
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
 %{_sysconfdir}/vmware-vcli
+%{_usr}/lib/vmware/resxtop
 %{_usr}/lib/vmware-vcli
 # duplicate perl-VMware stuff
 %exclude %{_usr}/lib/vmware-vcli/VMware
+%{_bindir}/esxcli
+%{_bindir}/resxtop
 %{_bindir}/vihostupdate
 %{_bindir}/vihostupdate35
 %{_bindir}/vifs
 %{_bindir}/vmware-cmd
-%{_bindir}/resxtop
 %{_bindir}/svmotion
 %{_bindir}/vmkfstools
 %{_bindir}/viperl-support
-%{_bindir}/dcli
 # no need uninstll script for RPM package
 %exclude %{_bindir}/vmware-uninstall-vSphere-CLI.pl*
 %exclude %{_bindir}/*.bat
 %exclude %{_bindir}/*.pyc
-%{_bindir}/vicfg-*
-%{_bindir}/esxcfg-*
-%{_bindir}/esxcli
 %{perl_privlib}/WSMan
 %{perl_privlib}/VMware
 %{_docdir}/vmware-vcli
-%{_mandir}/man1/resxtop.1*
+/opt/vmware
+%{_mandir}/man1/esxtop*
 
 %changelog
+* Mon Aug 10 2020 Alexander Ursu <alexander.ursu@gmail.com> 7.0.0-16453907.el7.1
+- upgrade to 7.0.0
+
 * Mon Jul 29 2019 Alexander Ursu <alexander.ursu@gmail.com> 6.7.0-8156551.el7.1
 - upgrade to 6.7.0
 

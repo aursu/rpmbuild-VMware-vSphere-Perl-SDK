@@ -1,0 +1,12 @@
+diff -rup vmware-vsphere-cli-distrib.orig/bin/vmware-uninstall-vSphere-CLI.pl vmware-vsphere-cli-distrib/bin/vmware-uninstall-vSphere-CLI.pl
+--- vmware-vsphere-cli-distrib.orig/bin/vmware-uninstall-vSphere-CLI.pl 2020-08-11 00:48:16.555761000 +0000
++++ vmware-vsphere-cli-distrib/bin/vmware-uninstall-vSphere-CLI.pl      2020-08-11 00:49:06.550820000 +0000
+@@ -2489,7 +2489,7 @@ sub install_content_vicli_perl {
+
+    # install modules in @install using CPAN from internet
+    #------------------------------------------------------------------------
+-   if ( ! $install_rhel55_local ) {
++   if ( 0 ) {
+
+       eval "require CPAN";
+       if ($@) {

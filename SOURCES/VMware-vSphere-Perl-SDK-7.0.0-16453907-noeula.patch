@@ -1,0 +1,33 @@
+diff -rup vmware-vsphere-cli-distrib.orig/bin/vmware-uninstall-vSphere-CLI.pl vmware-vsphere-cli-distrib/bin/vmware-uninstall-vSphere-CLI.pl
+--- vmware-vsphere-cli-distrib.orig/bin/vmware-uninstall-vSphere-CLI.pl	2015-06-17 06:12:24.533281000 -0400
++++ vmware-vsphere-cli-distrib/bin/vmware-uninstall-vSphere-CLI.pl	2015-06-17 06:14:57.080716000 -0400
+@@ -2001,7 +2001,7 @@ sub show_EULA {
+     print "\n";
+ 
+     # Make sure there is no default answer here
+-    if (get_answer('Do you accept? (yes/no)', 'yesno', '') eq 'no') {
++    if (get_answer('Do you accept? (yes/no)', 'yesno', 'yes') eq 'no') {
+       print wrap('Please try again when you are ready to accept.' . "\n\n", 0);
+       uninstall_file($gInstallerMainDB);
+       exit 1;
+@@ -2698,11 +2698,6 @@ sub install_content_vicli {
+   my $mandir;
+   my $libdir;
+ 
+-  my $previous = $gOption{'default'};
+-  $gOption{'default'} = 0;
+-  show_EULA();
+-  $gOption{'default'} = $previous;
+-
+   if ((check_disk_space('.', '/usr/lib')) < 0) {
+      my $lmsg;
+      $lmsg = 'There is not enough space available to install ' . vmware_product_name()
+@@ -3239,7 +3234,7 @@ sub get_initial_database {
+     remove_tmp_dir($bkp_dir);
+     # remove the installer db so the next invocation of install can proceed.
+     if (get_answer('Uninstallation of previous install failed. ' .
+-		   'Would you like to remove the install DB?', 'yesno', 'no') eq 'yes') {
++		   'Would you like to remove the install DB?', 'yesno', 'yes') eq 'yes') {
+       print wrap('Removing installer DB, please re-run the installer.' . "\n\n", 0);
+       unlink $gInstallerMainDB;
+     }
